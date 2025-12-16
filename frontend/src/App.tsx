@@ -65,7 +65,11 @@ export default function App() {
 
     if (tokenFromGoogle) {
       localStorage.setItem("token", tokenFromGoogle);
-      window.history.replaceState({}, "", "/dashboard");
+      window.history.replaceState(
+        {},
+        "",
+        `${window.location.origin}/dashboard`
+      );      
       fetchUserProfile();
     } else if (storedToken) {
       fetchUserProfile();
@@ -87,12 +91,16 @@ export default function App() {
   const handleOnboardingComplete = async (profile: UserProfile) => {
     try {
       await api.post("/api/profile", profile);
-      setUserProfile(profile);
+  
+      // ✅ refetch fresh profile from backend
+      await fetchUserProfile();
+  
       setPageStack(["dashboard"]);
     } catch (err) {
       console.error("Failed to save profile", err);
     }
   };
+  
 
 const handleLogout = () => {
   localStorage.removeItem("token");

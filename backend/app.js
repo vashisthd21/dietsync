@@ -4,8 +4,9 @@ import passport from "passport";
 
 // Import passport config
 import "./config/passport.js";
+// console.log("Google strategy:", passport._strategy("google"));
 
-// Import routes
+// Import routes 
 import authRoutes from "./routes/auth.routes.js";
 import profileRoutes from "./routes/profile.routes.js";
 import homeRoutes from "./routes/home.routes.js";

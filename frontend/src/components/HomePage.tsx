@@ -115,14 +115,15 @@ if (loading) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen p-6 bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Welcome Section */}
         <div className="space-y-3 p-8 bg-gradient-to-r from-[#16a34a] to-emerald-600 rounded-xl text-white shadow-lg">
           <h1 className="text-4xl">
             {getCurrentGreeting()}, {userName} 👋
           </h1>
-          <p className="text-lg text-white/90">Your personalized diet journey, simplified.</p>
+          <p className="text-lg text-white/90 dark:text-white/80">
+Your personalized diet journey, simplified.</p>
           <div className="flex gap-3 pt-2">
             <Badge variant="secondary" className="bg-white/20 text-white border-white/30 backdrop-blur-sm">
               <Award className="h-3 w-3 mr-1" />
