@@ -1,7 +1,9 @@
 export type UserProfile = {
     name: string;
     age: number;
-    dietPreference: string;
+    email: string;
+    avatar?: string;
+    dietPreference: string[];
     allergies: string[];
     medicalConditions: string[];
     budget: string;

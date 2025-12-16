@@ -34,7 +34,8 @@ export function OnboardingPage({ onComplete, onBack }: OnboardingPageProps) {
   const [formData, setFormData] = useState({
     name: '',
     age: '',
-    dietPreference: '',
+    email: '',
+    dietPreference: [] as string[],
     allergies: [] as string[],
     medicalConditions: [] as string[],
     budget: '',
@@ -49,6 +50,7 @@ export function OnboardingPage({ onComplete, onBack }: OnboardingPageProps) {
     } else {
       onComplete({
         name: formData.name,
+        email: formData.email,
         age: parseInt(formData.age) || 30,
         dietPreference: formData.dietPreference,
         allergies: formData.allergies,
@@ -80,7 +82,7 @@ export function OnboardingPage({ onComplete, onBack }: OnboardingPageProps) {
       case 1:
         return formData.name.trim() !== '' && formData.age.trim() !== '';
       case 2:
-        return formData.dietPreference !== '';
+        return formData.dietPreference.length > 0;
       case 3:
         return formData.allergies.length > 0;
       case 4:
@@ -146,17 +148,27 @@ export function OnboardingPage({ onComplete, onBack }: OnboardingPageProps) {
             </div>
           )}
 
-          {/* Step 2: Diet Preference */}
+          {/* Step 2: Diet Preference (MULTI SELECT FIXED) */}
           {step === 2 && (
             <div>
-              <label className="block text-sm mb-4 text-gray-700">What's your diet preference?</label>
+              <label className="block text-sm mb-4 text-gray-700">
+                What's your diet preference? (Select all that apply)
+              </label>
               <div className="grid grid-cols-2 gap-3">
                 {dietPreferenceOptions.map((option) => (
                   <button
                     key={option}
-                    onClick={() => setFormData({ ...formData, dietPreference: option })}
+                    onClick={() =>
+                      setFormData({
+                        ...formData,
+                        dietPreference: toggleArrayItem(
+                          formData.dietPreference,
+                          option
+                        ),
+                      })
+                    }
                     className={`px-4 py-3 rounded-lg border-2 transition-all ${
-                      formData.dietPreference === option
+                      formData.dietPreference.includes(option)
                         ? 'border-green-600 bg-green-50 text-green-700'
                         : 'border-gray-200 hover:border-green-300'
                     }`}
@@ -167,6 +179,7 @@ export function OnboardingPage({ onComplete, onBack }: OnboardingPageProps) {
               </div>
             </div>
           )}
+
 
           {/* Step 3: Allergies */}
           {step === 3 && (

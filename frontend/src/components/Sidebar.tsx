@@ -13,10 +13,12 @@ import type { Page } from '../types/navigation';
 
 type SidebarProps = {
   currentPage: Page;
+  onLogout: () => void;   
   onNavigate: (page: Page) => void;
   user: {
     name: string;
     email: string;
+    avatar?: string; 
   };
   theme: 'light' | 'dark';
   toggleTheme: () => void;
@@ -35,6 +37,7 @@ const navItems: {
 
 export function Sidebar({
   currentPage,
+  onLogout,
   onNavigate,
   user,
   theme,
@@ -45,22 +48,38 @@ export function Sidebar({
       
       {/* Logo */}
       <div className="flex items-center gap-2 mb-8">
-        <Leaf className="w-7 h-7 text-green-600" />
-        <span className="text-xl font-semibold text-green-700">
-          DietSync
-        </span>
+        <div className='cursor-pointer flex items-center gap-2' >
+          <Leaf className="w-7 h-7 text-green-600"  onClick={() => onNavigate('dashboard')} />
+          <span className="text-xl font-semibold text-green-700" onClick={() => onNavigate('dashboard')}>
+            DietSync
+          </span>
+        </div>
+        
       </div>
 
       {/* Profile */}
       <div className="flex items-center gap-3 mb-6 p-3 rounded-xl bg-gray-50">
-        <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-          <User className="w-5 h-5 text-green-700" />
+        <div className="w-12 h-12 rounded-full bg-green-100 overflow-hidden flex-shrink-0">
+          {user.avatar ? (
+            <img
+              src={user.avatar}
+              alt={user.name}
+              className="w-full h-full object-cover block"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <User className="w-6 h-6 text-green-700" />
+            </div>
+          )}
         </div>
-        <div>
-          <p className="text-sm font-medium">{user.name}</p>
-          <p className="text-xs text-gray-500">{user.email}</p>
+
+        <div className="min-w-0">
+          <p className="text-sm font-medium truncate">{user.name}</p>
+          <p className="text-xs text-gray-500 truncate">{user.email}</p>
         </div>
       </div>
+
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1">
@@ -89,8 +108,10 @@ export function Sidebar({
         {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
       </button>
 
-      {/* Logout */}
-      <button className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-red-600 hover:bg-red-50 mt-2">
+      <button
+        onClick={onLogout}
+        className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-red-600 hover:bg-red-50 mt-2"
+      >
         <LogOut />
         Logout
       </button>

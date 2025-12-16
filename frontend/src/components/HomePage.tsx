@@ -1,13 +1,14 @@
-import { useState } from 'react';
 import { Card } from '../ui/card.tsx';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Progress } from '../ui/progress';
 import { Utensils, Calendar, ShoppingCart, Star, TrendingUp, AlertCircle, CheckCircle2, X, Heart, Award, Zap } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { fetchHomeSummary } from "../api/home";
 
 interface HomePageProps {
   userName?: string;
-  dietPreference?: string;
+  dietPreference?: string[];
   medicalConditions?: string[];
   budget?: string;
   onNavigate?: (page: 'mealFeed' | 'weeklyPlanner' | 'groceryList' | 'feedback') => void;
@@ -15,24 +16,55 @@ interface HomePageProps {
 
 export function HomePage({
   userName = 'Radhika',
-  dietPreference = 'Vegetarian',
+  dietPreference = ['Vegetarian'],
   medicalConditions = ['Hypertension', 'Low Sodium'],
   budget = 'Moderate',
   onNavigate = () => {},
 }: HomePageProps) {
   const [showFeedback, setShowFeedback] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [homeData, setHomeData] = useState<any>({
+    caloriesTarget: 0,
+    caloriesConsumed: 0,
+    mealsPlanned: [],
+    warnings: [],
+  });
 
-  // Mock data for today's overview
-  const todayData = {
-    caloriesTarget: 2000,
-    caloriesConsumed: 1450,
-    mealsPlanned: [
-      { type: 'Breakfast', name: 'Veggie Omelette', completed: true },
-      { type: 'Lunch', name: 'Quinoa Buddha Bowl', completed: true },
-      { type: 'Dinner', name: 'Lentil Curry', completed: false },
-    ],
-    warnings: ['Sodium intake is 15% below recommended - Great job! 🎉'],
+
+useEffect(() => {
+  const loadHome = async () => {
+    try {
+      const data = await fetchHomeSummary();
+
+      setHomeData({
+        caloriesTarget: data?.caloriesTarget ?? 0,
+        caloriesConsumed: data?.caloriesConsumed ?? 0,
+        mealsPlanned: Array.isArray(data?.mealsPlanned)
+          ? data.mealsPlanned
+          : [],
+        warnings: Array.isArray(data?.warnings)
+          ? data.warnings
+          : [],
+      });
+    } catch (err) {
+      console.error("Failed to load home summary", err);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  loadHome();
+}, []);
+
+if (loading) {
+  return (
+    <div className="flex items-center justify-center h-full text-gray-500">
+      Loading dashboard...
+    </div>
+  );
+}
+
+
 
   // Weekly progress
   const weeklyProgress = [
@@ -50,7 +82,7 @@ export function HomePage({
   // Health insights
   const healthInsights = [
     {
-      title: 'Low sodium meals recommended today',
+      title: 'Low sodium meals recommended home',
       description: 'Based on your hypertension condition',
       icon: Heart,
       color: 'text-pink-600',
@@ -195,31 +227,31 @@ export function HomePage({
           </Card>
         </div>
 
-        {/* Today at a Glance & Health Insights */}
+        {/* home at a Glance & Health Insights */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Today at a Glance */}
+          {/* home at a Glance */}
           <Card className="p-6 bg-white shadow-sm border border-gray-200">
-            <h2 className="mb-4 text-gray-900">Today at a Glance</h2>
+            <h2 className="mb-4 text-gray-900">home at a Glance</h2>
             <div className="space-y-4">
               {/* Calories Progress */}
               <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-sm text-gray-700">Calories</span>
                   <span className="text-sm bg-[#16a34a] text-white px-3 py-1 rounded-full">
-                    {todayData.caloriesConsumed} / {todayData.caloriesTarget} kcal
+                    {homeData.caloriesConsumed} / {homeData.caloriesTarget} kcal
                   </span>
                 </div>
                 <Progress 
-                  value={(todayData.caloriesConsumed / todayData.caloriesTarget) * 100} 
+                  value={(homeData.caloriesConsumed / homeData.caloriesTarget) * 100} 
                   className="h-2"
                 />
               </div>
 
               {/* Meals Planned */}
               <div>
-                <p className="text-sm text-gray-700 mb-3">Meals Today</p>
+                <p className="text-sm text-gray-700 mb-3">Meals home</p>
                 <div className="space-y-2">
-                  {todayData.mealsPlanned.map((meal, idx) => (
+                  {homeData.mealsPlanned.map((meal:any, idx:number) => (
                     <div
                       key={idx}
                       className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
@@ -245,7 +277,7 @@ export function HomePage({
               </div>
 
               {/* Warnings/Alerts */}
-              {todayData.warnings.map((warning, idx) => (
+              {homeData.warnings.map((warning:any, idx:number) => (
                 <div key={idx} className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
                   <p className="text-sm text-emerald-800">{warning}</p>
                 </div>
@@ -308,16 +340,16 @@ export function HomePage({
           </div>
         </div>
 
-        {/* Why These Meals Today */}
+        {/* Why These Meals home */}
         <Card className="p-6 bg-white shadow-sm border border-gray-200">
           <div className="flex items-start gap-4 mb-4">
             <div className="p-3 bg-gradient-to-br from-[#16a34a] to-emerald-600 rounded-xl text-white">
               <Zap className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="text-gray-900 mb-2">Why These Meals Today? 🤔</h2>
+              <h2 className="text-gray-900 mb-2">Why These Meals home? 🤔</h2>
               <p className="text-gray-600">
-                Our ML-powered recommendation engine analyzed your health profile and selected today's meals
+                Our ML-powered recommendation engine analyzed your health profile and selected home's meals
                 specifically for you:
               </p>
             </div>
