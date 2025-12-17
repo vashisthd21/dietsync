@@ -51,7 +51,7 @@ export function Sidebar({
       {/* Logo */}
       <div
         className="flex items-center gap-2 mb-8 cursor-pointer"
-        onClick={() => onNavigate('mealfeed')}
+        onClick={() => onNavigate('dashboard')}
       >
         <Leaf className="w-7 h-7 text-green-600" />
         <span className="text-xl font-semibold text-green-700 dark:text-green-400">

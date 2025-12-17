@@ -4,6 +4,7 @@ export type Page =
   | 'login'
   | 'signup'
   | 'home'
+  | 'dashboard'
   | 'mealfeed'
   | 'feed'
   | 'meal-detail'
