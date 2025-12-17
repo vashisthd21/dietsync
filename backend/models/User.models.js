@@ -13,6 +13,16 @@ const userSchema = new mongoose.Schema(
       unique: true,
     },
     avatar: String,
+    dietPreference: [String],
+    allergies: [String],
+    goals: {
+    type: String,
+    enum: ["Weight Loss", "Weight Gain", "Maintenance"],
+    },
+    dailyCalorieTarget: {
+      type: Number,
+      default: 2000,
+    },
   },
   { timestamps: true }
 );

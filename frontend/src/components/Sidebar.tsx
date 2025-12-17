@@ -8,8 +8,9 @@ import {
   LogOut,
   User,
 } from 'lucide-react';
-
+import { NavLink, useNavigate } from 'react-router-dom';
 import type { Page } from '../types/navigation';
+
 
 type SidebarProps = {
   currentPage: Page;
@@ -30,7 +31,7 @@ const navItems: {
   icon: React.ElementType;
 }[] = [
   { label: 'Home', page: 'home', icon: Home },
-  { label: 'Meal Feed', page: 'feed', icon: Leaf },
+  { label: 'Meal Feed', page: 'mealfeed', icon: Leaf },
   { label: 'Weekly Planner', page: 'planner', icon: Calendar },
   { label: 'Grocery List', page: 'grocery', icon: ShoppingCart },
 ];
@@ -43,13 +44,14 @@ export function Sidebar({
   theme,
   toggleTheme,
 }: SidebarProps) {
+  const navigate = useNavigate();
   return (
     <aside className="w-64 h-screen flex flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 px-4 py-6">
 
       {/* Logo */}
       <div
         className="flex items-center gap-2 mb-8 cursor-pointer"
-        onClick={() => onNavigate('dashboard')}
+        onClick={() => onNavigate('mealfeed')}
       >
         <Leaf className="w-7 h-7 text-green-600" />
         <span className="text-xl font-semibold text-green-700 dark:text-green-400">
@@ -64,7 +66,8 @@ export function Sidebar({
             <img
               src={user.avatar}
               alt={user.name}
-              className="w-full h-full object-cover"
+              onClick={() => navigate("/profile")}
+              className="w-full h-full object-cover cursor-pointer rounded-full"
               referrerPolicy="no-referrer"
             />
           ) : (
@@ -127,7 +130,19 @@ export function Sidebar({
           </>
         )}
       </button>
-
+      <button
+  onClick={() => onNavigate("profile")}
+  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition
+    ${
+      currentPage === "profile"
+        ? "bg-green-100 text-green-700"
+        : "hover:bg-green-50 text-gray-700"
+    }
+  `}
+>
+  <User className="w-5 h-5" />
+  Profile Settings
+</button>
       {/* Logout */}
       <button
         onClick={onLogout}

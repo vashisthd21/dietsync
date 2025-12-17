@@ -11,7 +11,7 @@ import type { UserProfile } from '../types/user';
 import type { Meal } from '../types/meal';
 import api from '../api/axios';
 
-type DashboardPageProps = {
+type MealFeedPageProps = {
   userProfile: UserProfile;
   theme: 'light' | 'dark';
   toggleTheme: () => void;
@@ -19,13 +19,13 @@ type DashboardPageProps = {
   onOpenFeedback: () => void;
 };
 
-export function DashboardPage({
+export function MealFeedPage({
   userProfile,
   theme,
   toggleTheme,
   onMealClick,
   onOpenFeedback,
-}: DashboardPageProps) {
+}: MealFeedPageProps) {
   const [allMeals, setAllMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(true);
 

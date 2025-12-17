@@ -59,7 +59,7 @@ useEffect(() => {
 if (loading) {
   return (
     <div className="flex items-center justify-center h-full text-gray-500">
-      Loading dashboard...
+      Loading mealfeed...
     </div>
   );
 }

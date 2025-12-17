@@ -16,11 +16,14 @@ router.get("/", protect, async (req, res) => {
 
     res.json({
       name: profile.user.name,
+      age: profile.age || 0,
       email: profile.user.email,
       avatar: profile.user.avatar, // ✅ CORRECT
+      allergies: profile.allergies || [],
       dietPreference: profile.dietPreference,
       budget: profile.budget,
       medicalConditions: profile.medicalConditions,
+      onboardingCompleted: profile.onboardingCompleted,
     });
   } catch (err) {
     console.error("Profile fetch error", err);
@@ -35,7 +38,9 @@ router.post("/", protect, async (req, res) => {
 
     const profile = await Profile.findOneAndUpdate(
       { user: req.user.id },
-      { ...data, user: req.user.id },
+      { ...data, user: req.user.id,
+        onboardingCompleted: true,
+       },
       { new: true, upsert: true }
     );
 

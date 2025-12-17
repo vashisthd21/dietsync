@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Leaf, ChevronRight, ChevronLeft } from 'lucide-react';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
 import type { UserProfile } from '../types/user';
+import Logo from '../assets/logo1.svg?react';
 
 
 type OnboardingPageProps = {
@@ -9,7 +10,7 @@ type OnboardingPageProps = {
   };
 
 const medicalConditionsOptions = [
-  'Hypertension', 'Diabetes Type 2', 'High Cholesterol', 'Heart Disease',
+  'Migraine','Hypertension', 'Diabetes Type 2', 'High Cholesterol', 'Heart Disease',
   'Celiac Disease', 'IBS', 'GERD', 'Kidney Disease', 'None'
 ];
 
@@ -99,8 +100,13 @@ export function OnboardingPage({ onComplete, onBack }: OnboardingPageProps) {
       <div className="w-full max-w-2xl">
         {/* Logo */}
         <div className="flex items-center gap-2 mb-8">
-          <Leaf className="w-8 h-8 text-green-600" />
-          <span className="text-2xl text-green-700">DietSync</span>
+          <Logo className="w-8 h-8 text-green-600" />
+          <span className="text-3xl font-semibold tracking-tight">
+  <span className="text-green-600">Diet</span>
+  <span className="bg-gradient-to-r from-green-500 to-emerald-400 bg-clip-text text-transparent">
+    Sync
+  </span>
+</span>
         </div>
 
         {/* Progress Bar */}
@@ -116,11 +122,74 @@ export function OnboardingPage({ onComplete, onBack }: OnboardingPageProps) {
             />
           </div>
         </div>
+        <div className="flex justify-end mb-4">
+  {/* <button
+    onClick={() =>
+      onComplete({
+        name: '',
+        email: '',
+        age: 0,
+        dietPreference: [],
+        allergies: [],
+        medicalConditions: [],
+        budget: '',
+        tastePreferences: [],
+      })
+    }
+    className="text-sm text-gray-500 hover:text-green-600 font-medium transition"
+  >
+    Skip for now →
+  </button> */}
+</div>
 
         {/* Main Card */}
         <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12">
-          <h2 className="text-3xl mb-2">Tell us about yourself</h2>
-          <p className="text-gray-600 mb-8">Help us personalize your meal recommendations</p>
+        <div className="flex items-start justify-between mb-6">
+  <div>
+    <h2 className="text-3xl mb-2">Tell us about yourself</h2>
+    <p className="text-gray-600">
+      Help us personalize your meal recommendations
+    </p>
+  </div>
+
+  {/* 🔥 BIG & VISIBLE SKIP */}
+  <button
+    onClick={() =>
+      onComplete({
+        name: '',
+        email: '',
+        age: 0,
+        dietPreference: [],
+        allergies: [],
+        medicalConditions: [],
+        budget: '',
+        tastePreferences: [],
+      })
+    }
+    className="
+      px-5 py-2.5
+      rounded-full
+      border-2 border-green-600
+      text-green-700
+      font-semibold
+      hover:bg-green-50
+      transition
+      text-sm
+      whitespace-nowrap
+    "
+  >
+    Skip setup →
+  </button>
+</div>
+
+
+<div className="mt-4 mb-8 rounded-xl bg-green-50 border border-green-200 p-4 text-sm text-green-800">
+  <strong>Why we ask this:</strong>
+  <p className="mt-1">
+    Your preferences help us create personalized meal plans, calorie goals,
+    and health-aware food recommendations. You can always update this later.
+  </p>
+</div>
 
           {/* Step 1: Basic Info */}
           {step === 1 && (
@@ -278,28 +347,34 @@ export function OnboardingPage({ onComplete, onBack }: OnboardingPageProps) {
 
           {/* Navigation Buttons */}
           <div className="flex items-center justify-between mt-12">
-          <button
-  onClick={handleBack}
-  className="flex items-center gap-2 px-6 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-all"
->
 
-              <ChevronLeft className="w-5 h-5" />
-              Back
-            </button>
+  {/* LEFT SIDE: Back + Skip */}
+  <div className="flex items-center gap-4">
+    <button
+      onClick={handleBack}
+      className="flex items-center gap-2 px-6 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-all"
+    >
+      <ChevronLeft className="w-5 h-5" />
+      Back
+    </button>
 
-            <button
-              onClick={handleNext}
-              disabled={!canProceed()}
-              className={`flex items-center gap-2 px-8 py-3 rounded-lg transition-all ${
-                canProceed()
-                  ? 'bg-green-600 text-white hover:bg-green-700'
-                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              }`}
-            >
-              {step === totalSteps ? 'Complete' : 'Next'}
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
+  </div>
+
+  {/* RIGHT SIDE: NEXT */}
+  <button
+    onClick={handleNext}
+    disabled={!canProceed()}
+    className={`flex items-center gap-2 px-8 py-3 rounded-lg transition-all ${
+      canProceed()
+        ? 'bg-green-600 text-white hover:bg-green-700'
+        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+    }`}
+  >
+    {step === totalSteps ? 'Complete' : 'Next'}
+    <ChevronRight className="w-5 h-5" />
+  </button>
+</div>
+
         </div>
       </div>
     </div>

@@ -5,7 +5,7 @@ import { getMealsForUser } from '../data/meals';
 
 type WeeklyPlannerPageProps = {
   userProfile: UserProfile;
-  onNavigate: (page: 'dashboard' | 'planner' | 'grocery') => void;
+  onNavigate: (page: 'mealfeed' | 'planner' | 'grocery') => void;
 };
 
 type MealSlot = {
@@ -161,7 +161,7 @@ export function WeeklyPlannerPage({ userProfile, onNavigate }: WeeklyPlannerPage
         {/* Navigation Tabs */}
         <div className="flex gap-4 mb-8">
           <button
-            onClick={() => onNavigate('dashboard')}
+            onClick={() => onNavigate('mealfeed')}
             className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
           >
             Meal Feed

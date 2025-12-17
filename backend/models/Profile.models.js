@@ -10,11 +10,17 @@ const profileSchema = new mongoose.Schema(
     },
     name: String,
     age: Number,
+    email: String,
+    avatar: String,
     dietPreference: [String],
     allergies: [String],
     medicalConditions: [String],
     budget: String,
     tastePreferences: [String],
+    onboardingCompleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import {
   Leaf,
   Clock,
@@ -28,25 +28,30 @@ const Youtube = icons.Youtube;
 
 
 type LandingPageProps = {
-  onGetStarted: () => void;
+  onLogin: () => void;
+  onSignup: () => void;
   theme: 'light' | 'dark';
   toggleTheme: () => void;
 };
 
+
+
 export function LandingPage({
-  onGetStarted,
+  onLogin,
+  onSignup,
   theme,
   toggleTheme,
 }: LandingPageProps) {
-  const navigate = useNavigate();
 
-  // 🔐 If already logged in, redirect to dashboard
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      navigate('/dashboard');
-    }
-  }, [navigate]);
+  // const navigate = useNavigate();
+
+  // 🔐 If already logged in, redirect to mealfeed
+  // useEffect(() => {
+  //   const token = localStorage.getItem('token');
+  //   if (token) {
+  //     navigate('/mealfeed');
+  //   }
+  // }, [navigate]);
 
   const handleGoogleLogin = () => {
     window.location.href = "http://localhost:5050/auth/google";
@@ -85,17 +90,18 @@ export function LandingPage({
             </button>
 
             <button
-              onClick={handleGoogleLogin}
-              className="text-gray-700 hover:text-green-600 dark:text-white transition-colors"
+              onClick={onLogin}
+              className="text-gray-700 hover:text-green-600 dark:text-white"
             >
               Login
             </button>
 
+
             <button
-              onClick={onGetStarted}
+              onClick={onSignup}
               className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
-              Dashboard
+              Get Started
             </button>
           </div>
         </div>
@@ -147,11 +153,11 @@ export function LandingPage({
 </svg>
 
 
-          Sign in with Google
+          Continue with Google
         </button>
 
         <button
-  onClick={onGetStarted}
+  onClick={onSignup}
   className="px-8 py-3 bg-green-600 text-white rounded-lg
              hover:bg-green-700 hover:shadow-lg hover:-translate-y-0.5
              transition-all duration-200"
@@ -542,7 +548,7 @@ export function LandingPage({
       </p>
 
       <button
-        onClick={onGetStarted}
+        onClick={onSignup}
         className="px-8 py-4 bg-green-600 text-white rounded-lg
                    hover:bg-green-700 transition-colors text-lg"
       >
@@ -566,9 +572,12 @@ export function LandingPage({
     <div>
       <div className="flex items-center gap-2 mb-4">
         <Logo className="w-7 h-7 text-green-600 dark:text-green-500" />
-        <span className="text-2xl font-semibold text-gray-900 dark:text-white">
-          DietSync
-        </span>
+        <span className="text-3xl font-semibold tracking-tight">
+  <span className="text-green-600">Diet</span>
+  <span className="bg-gradient-to-r from-green-500 to-emerald-400 bg-clip-text text-transparent">
+    Sync
+  </span>
+</span>
       </div>
 
       <p className="leading-relaxed max-w-sm">

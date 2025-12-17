@@ -6,7 +6,7 @@ import type { Meal } from '../types/meal';
 type MealDetailPageProps = {
   meal: Meal;
   onBack: () => void;
-  onNavigate: (page: 'dashboard' | 'planner' | 'grocery') => void;
+  onNavigate: (page: 'mealfeed' | 'planner' | 'grocery') => void;
 };
 
 const alternativeIngredients: { [key: string]: string[] } = {

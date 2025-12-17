@@ -2,12 +2,16 @@ import { useState, useEffect } from "react";
 import { LandingPage } from "./components/LandingPage";
 import { OnboardingPage } from "./components/OnboardingPage";
 import { HomePage } from "./components/HomePage";
-import { DashboardPage } from "./components/DashboardPage";
+import { MealFeedPage } from "./components/MealFeedPage";
 import { MealDetailPage } from "./components/MealDetailPage";
 import { WeeklyPlannerPage } from "./components/WeeklyPlannerPage";
 import { GroceryListPage } from "./components/GroceryListPage";
 import { Sidebar } from "./components/Sidebar";
 import { FeedbackModel } from "./components/FeedbackModel";
+import { LoginPage } from "./components/LoginPage";
+import { SignupPage } from "./components/SignupPage";
+import { ProfileSettingsPage } from "./components/ProfileSettings";
+
 import api from "./api/axios";
 
 import type { Page } from "./types/navigation";
@@ -17,7 +21,7 @@ import type { Meal } from "./types/meal";
 export default function App() {
   /* ---------------- Initial Page Sync ---------------- */
   const getInitialPage = (): Page => {
-    if (window.location.pathname === "/dashboard") return "dashboard";
+    if (window.location.pathname === "/mealfeed") return "mealfeed";
     return "landing";
   };
 
@@ -41,7 +45,7 @@ export default function App() {
     try {
       const res = await api.get("/api/profile");
       setUserProfile(res.data);
-      setPageStack(["dashboard"]);
+      setPageStack(["home"]);
     } catch (err: any) {
       if (err.response?.status === 404) {
         // 🆕 New user
@@ -68,7 +72,8 @@ export default function App() {
       window.history.replaceState(
         {},
         "",
-        `${window.location.origin}/dashboard`
+        "/"
+        // `${window.location.origin}/mealfeed`
       );      
       fetchUserProfile();
     } else if (storedToken) {
@@ -94,11 +99,12 @@ export default function App() {
   
       // ✅ refetch fresh profile from backend
       await fetchUserProfile();
-  
-      setPageStack(["dashboard"]);
     } catch (err) {
       console.error("Failed to save profile", err);
     }
+  };
+  const handleSignupSuccess = (page: "onboarding" | "mealfeed") => {
+    setPageStack([page]);
   };
   
 
@@ -115,31 +121,42 @@ const handleLogout = () => {
 
   window.history.replaceState({}, "", "/");
 };
+const handleGoogleSignup = () => {
+  window.location.href = "http://localhost:5050/auth/google";
+};
 
 
   /* ---------------- HomePage Navigation ---------------- */
   const homePageNavigate = (
     page: "mealFeed" | "weeklyPlanner" | "groceryList" | "feedback"
   ) => {
+    if (!userProfile) {
+      setPageStack(["onboarding"]);
+      return;
+    }
+  
     if (page === "feedback") {
       setShowFeedback(true);
       return;
     }
-
+  
     const pageMap: Record<string, Page> = {
-      mealFeed: "dashboard",
+      mealFeed: "mealfeed",
       weeklyPlanner: "planner",
       groceryList: "grocery",
     };
-
+  
     goTo(pageMap[page]);
   };
-
+  
+  
+  const dashboardPages: Page[] = ["home", "mealfeed", "planner", "grocery"];
   return (
     <div className={theme === "dark" ? "dark" : ""}>
       <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
         {/* ---------------- Sidebar ---------------- */}
-        {userProfile && !["landing", "onboarding"].includes(currentPage) && (
+        
+        {userProfile && dashboardPages.includes(currentPage) && (
           <Sidebar
             currentPage={currentPage}
             onNavigate={(page) => {
@@ -158,13 +175,40 @@ const handleLogout = () => {
 
         {/* ---------------- Main ---------------- */}
         <main className="flex-1 h-screen overflow-y-auto">
-          {currentPage === "landing" && (
-            <LandingPage
-              onGetStarted={() => goTo("onboarding")}
-              theme={theme}
-              toggleTheme={toggleTheme}
+        {currentPage === "landing" && (
+          <LandingPage
+            onLogin={() => goTo("login")}
+            onSignup={() => goTo("signup")}
+            theme={theme}
+            toggleTheme={toggleTheme}
+          />
+        )}
+
+
+
+          {currentPage === "login" && (
+            <LoginPage
+              onGoogleLogin={() => {
+                window.location.href = "http://localhost:5050/auth/google";
+              }}
+              onLoginSuccess={() => {
+                fetchUserProfile();
+              }}
+              onGoToSignup={() => goTo("onboarding")}
+              onBackToHome={() => goTo("landing")}   // 👈 HERE
             />
           )}
+
+          {currentPage === "signup" && (
+            <SignupPage
+              onGoogleSignup={handleGoogleSignup}
+              onSignupSuccess={handleSignupSuccess}
+              onGoToLogin={() => goTo("login")}
+              onBackToHome={() => goTo("landing")}
+            />
+          )}
+
+
 
           {currentPage === "onboarding" && (
             <OnboardingPage
@@ -172,6 +216,13 @@ const handleLogout = () => {
               onBack={goBack}
             />
           )}
+{currentPage === "profile" && userProfile && (
+  <ProfileSettingsPage
+    userProfile={userProfile}
+    onSave={(updated) => setUserProfile(updated)}
+    onBack={goBack}
+  />
+)}
 
           {currentPage === "home" && userProfile && (
             <HomePage
@@ -184,14 +235,14 @@ const handleLogout = () => {
             />
           )}
 
-          {currentPage === "dashboard" && (
+          {currentPage === "mealfeed" && (
             loadingProfile ? (
               <div className="flex items-center justify-center h-full text-gray-500">
                 Loading your profile...
               </div>
             ) : (
               userProfile && (
-                <DashboardPage
+                <MealFeedPage
                   userProfile={userProfile}
                   theme={theme}
                   toggleTheme={toggleTheme}

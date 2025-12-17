@@ -33,5 +33,5 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/home", homeRoutes);
 app.use("/api/daily", dailyRoutes);
 app.use("/api/recommend", recommendRoutes); // ✅ IMPORTANT
-
+app.use("/user", userRoutes);
 export default app;
