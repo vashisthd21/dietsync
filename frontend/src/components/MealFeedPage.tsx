@@ -63,27 +63,27 @@ export function MealFeedPage({ onNavigate }: MealFeedPageProps) {
     Math.round(value * (servings / 2));
 
   /* ---------- ACTIONS ---------- */
-  const addIngredientsToGrocery = async () => {
-  if (!selectedMeal) return;
-  setAdding(true);
+//   const addIngredientsToGrocery = async () => {
+//   if (!selectedMeal) return;
+//   setAdding(true);
 
-  try {
-    // Send all ingredients in one go
-    await api.post("/api/grocery/add-bulk", {
-      items: selectedMeal.ingredients.map(ing => ({
-        name: ing,
-        quantity: "1",
-        category: "Fresh Produce"
-      }))
-    });
+//   try {
+//     // Send all ingredients in one go
+//     await api.post("/api/grocery/add-bulk", {
+//       items: selectedMeal.ingredients.map(ing => ({
+//         name: ing,
+//         quantity: "1",
+//         category: "Fresh Produce"
+//       }))
+//     });
 
-    onNavigate("grocery");
-  } catch (err) {
-    console.error("Failed to add ingredients:", err);
-  } finally {
-    setAdding(false);
-  }
-};
+//     onNavigate("grocery");
+//   } catch (err) {
+//     console.error("Failed to add ingredients:", err);
+//   } finally {
+//     setAdding(false);
+//   }
+// };
 
   /* ---------- LOADING ---------- */
   if (loading) {
@@ -251,14 +251,14 @@ export function MealFeedPage({ onNavigate }: MealFeedPageProps) {
                   Add to Planner
                 </button>
 
-                <button
+                {/* <button
                   onClick={addIngredientsToGrocery}
                   disabled={adding}
                   className="w-full border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-slate-300 hover:border-[#16a34a] hover:text-[#16a34a] py-4 rounded-2xl transition-all active:scale-95 flex items-center justify-center font-semibold disabled:opacity-50"
-                >
-                  <ShoppingCart className="w-5 h-5 mr-2" />
+                > */}
+                  {/* <ShoppingCart className="w-5 h-5 mr-2" />
                   {adding ? "Adding..." : "Add to Grocery List"}
-                </button>
+                </button> */}
               </div>
             </div>
           </div>

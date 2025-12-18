@@ -1,12 +1,8 @@
 import { useEffect, useState } from "react";
 import {
   Leaf,
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
   Plus,
   Trash2,
-  Download,
 } from "lucide-react";
 import type { UserProfile } from "../types/user";
 import type { Meal } from "../types/meal";
@@ -45,12 +41,7 @@ const daysOfWeek = [
   "Sunday",
 ];
 
-export function WeeklyPlannerPage({
-  userProfile,
-  onNavigate,
-}: WeeklyPlannerPageProps) {
-  /* ---------------- API MEALS ---------------- */
-
+export function WeeklyPlannerPage({ userProfile, onNavigate }: WeeklyPlannerPageProps) {
   const [allMeals, setAllMeals] = useState<Meal[]>([]);
   const [loadingMeals, setLoadingMeals] = useState(true);
 
@@ -58,21 +49,14 @@ export function WeeklyPlannerPage({
     api
       .get("/api/meals")
       .then((res) => setAllMeals(res.data))
-      .catch((err) => console.error("Failed to fetch meals", err))
+      .catch(console.error)
       .finally(() => setLoadingMeals(false));
   }, []);
-
-  /* ---------------- PLANNER STATE ---------------- */
 
   const [weekPlan, setWeekPlan] = useState<WeekPlan>(() => {
     const plan: WeekPlan = {};
     daysOfWeek.forEach((day) => {
-      plan[day] = {
-        breakfast: null,
-        lunch: null,
-        dinner: null,
-        snacks: null,
-      };
+      plan[day] = { breakfast: null, lunch: null, dinner: null, snacks: null };
     });
     return plan;
   });
@@ -82,17 +66,10 @@ export function WeeklyPlannerPage({
     meal: keyof DayPlan;
   } | null>(null);
 
-  /* ---------------- HELPERS ---------------- */
+  const getMealsByType = (type: keyof DayPlan) =>
+    allMeals.filter((meal) => meal.tags?.includes(type));
 
-  const getMealsByType = (type: keyof DayPlan) => {
-    return allMeals.filter((meal) => meal.tags?.includes(type));
-  };
-
-  const addMealToSlot = (
-    day: string,
-    mealType: keyof DayPlan,
-    meal: Meal
-  ) => {
+  const addMealToSlot = (day: string, mealType: keyof DayPlan, meal: Meal) => {
     setWeekPlan((prev) => ({
       ...prev,
       [day]: {
@@ -111,38 +88,37 @@ export function WeeklyPlannerPage({
   const removeMealFromSlot = (day: string, mealType: keyof DayPlan) => {
     setWeekPlan((prev) => ({
       ...prev,
-      [day]: {
-        ...prev[day],
-        [mealType]: null,
-      },
+      [day]: { ...prev[day], [mealType]: null },
     }));
   };
 
-  const autoGenerateWeek = () => {
-    const newPlan: WeekPlan = {};
+const autoGenerateWeek = () => {
+  const newPlan: WeekPlan = {};
 
-    daysOfWeek.forEach((day) => {
-      const pickRandom = (meals: Meal[]) =>
-        meals.length
-          ? {
-              id: meals[Math.floor(Math.random() * meals.length)]._id,
-              name: meals[Math.floor(Math.random() * meals.length)].name,
-              calories:
-                meals[Math.floor(Math.random() * meals.length)].calories,
-              image: meals[Math.floor(Math.random() * meals.length)].image,
-            }
-          : null;
+  daysOfWeek.forEach((day) => {
+    const pickRandom = (meals: Meal[]) =>
+      meals.length
+        ? {
+            id: meals[Math.floor(Math.random() * meals.length)]._id,
+            name: meals[Math.floor(Math.random() * meals.length)].name,
+            calories:
+              meals[Math.floor(Math.random() * meals.length)].calories,
+            image:
+              meals[Math.floor(Math.random() * meals.length)].image,
+          }
+        : null;
 
-      newPlan[day] = {
-        breakfast: pickRandom(getMealsByType("breakfast")),
-        lunch: pickRandom(getMealsByType("lunch")),
-        dinner: pickRandom(getMealsByType("dinner")),
-        snacks: pickRandom(getMealsByType("snacks")),
-      };
-    });
+    newPlan[day] = {
+      breakfast: pickRandom(getMealsByType("breakfast")),
+      lunch: pickRandom(getMealsByType("lunch")),
+      dinner: pickRandom(getMealsByType("dinner")),
+      snacks: pickRandom(getMealsByType("snacks")),
+    };
+  });
 
-    setWeekPlan(newPlan);
-  };
+  setWeekPlan(newPlan);
+};
+
 
   const getTotalCaloriesForDay = (day: string) => {
     const d = weekPlan[day];
@@ -154,30 +130,28 @@ export function WeeklyPlannerPage({
     );
   };
 
-  /* ---------------- LOADING ---------------- */
-
   if (loadingMeals) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500">
+      <div className="min-h-screen flex items-center justify-center text-gray-500 dark:text-gray-400">
         Loading planner meals...
       </div>
     );
   }
 
-  /* ---------------- UI ---------------- */
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       {/* Header */}
-      <header className="bg-white border-b sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between">
+      <header className="sticky top-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <Leaf className="w-8 h-8 text-green-600" />
-            <h1 className="text-2xl">Weekly Planner</h1>
+            <Leaf className="w-7 h-7 text-green-600" />
+            <h1 className="text-2xl text-gray-900 dark:text-gray-100">
+              Weekly Planner
+            </h1>
           </div>
           <button
             onClick={autoGenerateWeek}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg"
+            className="px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl transition"
           >
             Auto-Generate Week
           </button>
@@ -188,16 +162,17 @@ export function WeeklyPlannerPage({
         {/* Tabs */}
         <div className="flex gap-4 mb-8">
           <button onClick={() => onNavigate("mealfeed")}>Meal Feed</button>
+          
           <button className="bg-green-600 text-white px-4 py-2 rounded-lg">
             Weekly Planner
           </button>
           <button onClick={() => onNavigate("grocery")}>Grocery</button>
         </div>
 
-        {/* Planner Table */}
-        <div className="bg-white rounded-xl overflow-x-auto">
-          <table className="w-full">
-            <thead>
+        {/* Planner */}
+        <div className="overflow-x-auto rounded-2xl bg-white dark:bg-gray-800 shadow-sm border dark:border-gray-700">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
                 <th className="p-4 text-left">Meal</th>
                 {daysOfWeek.map((day) => (
@@ -210,57 +185,60 @@ export function WeeklyPlannerPage({
                 ))}
               </tr>
             </thead>
+
             <tbody>
-              {(["breakfast", "lunch", "dinner", "snacks"] as const).map(
-                (mealType) => (
-                  <tr key={mealType}>
-                    <td className="p-4 capitalize">{mealType}</td>
-                    {daysOfWeek.map((day) => {
-                      const meal = weekPlan[day][mealType];
-                      return (
-                        <td key={day} className="p-2">
-                          {meal ? (
-                            <div className="relative group bg-gray-50 p-3 rounded-lg">
-                              <img
-                                src={meal.image}
-                                className="w-12 h-12 rounded"
-                              />
-                              <p className="text-sm">{meal.name}</p>
-                              <button
-                                onClick={() =>
-                                  removeMealFromSlot(day, mealType)
-                                }
-                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100"
-                              >
-                                <Trash2 size={12} />
-                              </button>
-                            </div>
-                          ) : (
+              {(["breakfast", "lunch", "dinner", "snacks"] as const).map((mealType) => (
+                <tr key={mealType} className="border-t dark:border-gray-700">
+                  <td className="p-4 capitalize text-gray-700 dark:text-gray-300">
+                    {mealType}
+                  </td>
+
+                  {daysOfWeek.map((day) => {
+                    const meal = weekPlan[day][mealType];
+                    return (
+                      <td key={day} className="p-2">
+                        {meal ? (
+                          <div className="relative bg-gray-50 dark:bg-gray-700 p-3 rounded-xl group transition">
+                            <img
+                              src={meal.image}
+                              className="w-14 h-14 rounded-lg object-cover mb-1"
+                            />
+                            <p className="text-sm text-gray-800 dark:text-gray-100">
+                              {meal.name}
+                            </p>
                             <button
-                              onClick={() =>
-                                setSelectedSlot({ day, meal: mealType })
-                              }
-                              className="w-full h-20 border-2 border-dashed rounded-lg"
+                              onClick={() => removeMealFromSlot(day, mealType)}
+                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
                             >
-                              <Plus />
+                              <Trash2 size={12} />
                             </button>
-                          )}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                )
-              )}
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setSelectedSlot({ day, meal: mealType })}
+                            className="w-full h-24 border-2 border-dashed rounded-xl
+                                       flex items-center justify-center
+                                       hover:border-green-500 hover:bg-green-50
+                                       dark:hover:bg-gray-700 transition"
+                          >
+                            <Plus className="text-gray-400" />
+                          </button>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Meal Picker Modal */}
+      {/* Modal */}
       {selectedSlot && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-          <div className="bg-white rounded-xl p-6 max-w-3xl w-full">
-            <h3 className="text-xl mb-4">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-3xl w-full shadow-xl">
+            <h3 className="text-xl text-gray-900 dark:text-gray-100 mb-4">
               Select {selectedSlot.meal} for {selectedSlot.day}
             </h3>
 
@@ -271,21 +249,25 @@ export function WeeklyPlannerPage({
                   onClick={() =>
                     addMealToSlot(selectedSlot.day, selectedSlot.meal, meal)
                   }
-                  className="p-4 border rounded-lg cursor-pointer hover:bg-green-50"
+                  className="cursor-pointer border rounded-xl overflow-hidden
+                             hover:shadow-lg transition bg-gray-50 dark:bg-gray-700"
                 >
-                  <img
-                    src={meal.image}
-                    className="w-full h-32 object-cover rounded"
-                  />
-                  <h4 className="mt-2">{meal.name}</h4>
-                  <p className="text-sm">{meal.calories} cal</p>
+                  <img src={meal.image} className="h-32 w-full object-cover" />
+                  <div className="p-3">
+                    <h4 className="text-sm text-gray-900 dark:text-gray-100">
+                      {meal.name}
+                    </h4>
+                    <p className="text-xs text-gray-500">
+                      {meal.calories} cal
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
 
             <button
               onClick={() => setSelectedSlot(null)}
-              className="mt-4 px-4 py-2 border rounded-lg"
+              className="mt-6 px-4 py-2 border rounded-lg dark:border-gray-600"
             >
               Cancel
             </button>
