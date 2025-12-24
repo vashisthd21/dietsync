@@ -15,7 +15,6 @@ import dailyRoutes from "./routes/daily.routes.js";
 import mealRoutes from "./routes/meal.routes.js";
 import plannerRoutes from "./routes/planner.routes.js";
 import groceryRoutes from "./routes/grocery.routes.js";
-import notificationRoutes from "./routes/notification.routes.js";
 
 import { protect } from "./middlewares/auth.middleware.js";
 import { initSocket } from "./socket.js";
@@ -46,7 +45,7 @@ app.use("/api/daily", protect, dailyRoutes);
 app.use("/api/meals", protect, mealRoutes);
 app.use("/api/planner", protect, plannerRoutes);
 app.use("/api/grocery", protect, groceryRoutes);
-app.use("/api/notifications", protect, notificationRoutes);
+// app.use("/api/notifications", protect, notificationRoutes);
 
 // Health check
 app.get("/", (req, res) => {

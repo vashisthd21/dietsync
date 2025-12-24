@@ -1,14 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   ArrowLeft,
   Clock,
   Users,
   ChefHat,
   RefreshCw,
-  Calendar,
   ShoppingCart,
-  Info,
-  CheckCircle,
   Heart,
   ThumbsUp,
   ThumbsDown,
@@ -16,6 +13,8 @@ import {
   Beef,
   Wheat,
   Droplets,
+  Filter,
+  Search,
 } from "lucide-react";
 import type { Meal } from "../types/meal";
 import api from "../api/axios";
@@ -32,6 +31,11 @@ export function MealFeedPage({ userProfile, onNavigate }: MealFeedPageProps) {
   const [loading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
 
+  /* --- FILTER STATES --- */
+  const [activeCategory, setActiveCategory] = useState<string>("All");
+  const [maxCalories, setMaxCalories] = useState<number>(1200);
+  const [searchQuery, setSearchQuery] = useState("");
+
   useEffect(() => {
     api
       .get("/api/meals")
@@ -40,9 +44,23 @@ export function MealFeedPage({ userProfile, onNavigate }: MealFeedPageProps) {
       .finally(() => setLoading(false));
   }, []);
 
+  /* --- FILTER LOGIC --- */
+  const filteredMeals = useMemo(() => {
+    return meals.filter((meal) => {
+      const matchesSearch = meal.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory =
+        activeCategory === "All" ||
+        meal.tags?.some(tag => tag.toLowerCase() === activeCategory.toLowerCase()) ||
+        getNutritionLabel(meal) === activeCategory;
+      const matchesCalories = meal.calories <= maxCalories;
+
+      return matchesSearch && matchesCategory && matchesCalories;
+    });
+  }, [meals, searchQuery, activeCategory, maxCalories]);
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
         <RefreshCw className="animate-spin w-8 h-8 text-emerald-500" />
       </div>
     );
@@ -51,27 +69,110 @@ export function MealFeedPage({ userProfile, onNavigate }: MealFeedPageProps) {
   /* ========================= GRID VIEW ========================= */
   if (!selectedMeal) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-950 p-8 transition-colors duration-500">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {meals.map((meal) => (
-            <div
-              key={meal._id}
-              onClick={() => setSelectedMeal(meal)}
-              className="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-gray-100 dark:border-slate-800 hover:shadow-xl transition cursor-pointer"
-            >
-              <img
-                src={meal.image}
-                className="h-56 w-full object-cover"
-                alt={meal.name}
-              />
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">{meal.name}</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                  {meal.calories} kcal • High Protein
-                </p>
-              </div>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+        <div className="max-w-7xl mx-auto p-6 md:p-8 space-y-8">
+          
+          {/* TOP BAR: TITLES & SEARCH */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+              <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                Meal Discovery
+              </h1>
+              <p className="text-slate-500 dark:text-slate-400 mt-2">
+                Personalized recommendations for <span className="text-emerald-500 font-semibold">{userProfile.name}</span>
+              </p>
             </div>
-          ))}
+            
+            <div className="relative w-full md:w-80">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input 
+                type="text"
+                placeholder="Search recipes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 focus:ring-2 focus:ring-emerald-500 outline-none transition-all dark:text-white"
+              />
+            </div>
+          </div>
+
+          {/* FILTER CONTROLS */}
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              {["All", "High Protein", "Low Calorie", "Breakfast", "Vegan", "Keto"].map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${
+                    activeCategory === cat
+                      ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 scale-105"
+                      : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10 hover:border-emerald-500"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            <div className="bg-white dark:bg-slate-900/50 p-5 rounded-3xl border border-slate-200 dark:border-white/10 flex flex-col md:flex-row items-center gap-6">
+              <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400 min-w-fit">
+                <Filter size={18} className="text-emerald-500" />
+                <span className="text-sm font-bold uppercase tracking-wider">Max Calories</span>
+              </div>
+              <input 
+                type="range" min="200" max="1500" step="50"
+                value={maxCalories}
+                onChange={(e) => setMaxCalories(parseInt(e.target.value))}
+                className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+              />
+              <span className="text-emerald-600 dark:text-emerald-400 font-black min-w-[80px] text-right">
+                {maxCalories} kcal
+              </span>
+            </div>
+          </div>
+
+          {/* MEAL GRID */}
+          {filteredMeals.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-12">
+              {filteredMeals.map((meal) => (
+                <div
+                  key={meal._id}
+                  onClick={() => setSelectedMeal(meal)}
+                  className="group bg-white dark:bg-slate-900/70 backdrop-blur-xl rounded-[2rem] overflow-hidden border border-slate-200 dark:border-white/10 hover:shadow-2xl transition-all cursor-pointer"
+                >
+                  <div className="relative h-60 overflow-hidden">
+                    <img src={meal.image} className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    <div className="absolute top-4 right-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-3 py-1 rounded-xl text-xs font-bold text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20">
+                      {meal.calories} kcal
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 group-hover:text-emerald-500 transition-colors">
+                      {meal.name}
+                    </h3>
+                    <div className="flex items-center gap-2 mt-2">
+                       <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                       <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                        {getNutritionLabel(meal)}
+                       </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-24 bg-white dark:bg-slate-900/30 rounded-[3rem] border border-dashed border-slate-300 dark:border-slate-800">
+               <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full mb-4">
+                 <Search size={32} className="text-slate-400" />
+               </div>
+               <p className="text-slate-500 dark:text-slate-400 font-medium">No meals match your current filters.</p>
+               <button 
+                onClick={() => {setActiveCategory("All"); setMaxCalories(1200); setSearchQuery("");}}
+                className="mt-4 text-emerald-500 font-bold hover:text-emerald-400"
+               >
+                 Reset all filters
+               </button>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -79,120 +180,80 @@ export function MealFeedPage({ userProfile, onNavigate }: MealFeedPageProps) {
 
   /* ========================= DETAIL VIEW ========================= */
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 pb-20 transition-colors duration-500 font-sans">
-      {/* Header */}
-      <header className="sticky top-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur border-b border-gray-100 dark:border-slate-800 z-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-20 transition-colors duration-300">
+      <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-white/10">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <button
-            onClick={() => setSelectedMeal(null)}
-            className="flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
-          >
+          <button onClick={() => setSelectedMeal(null)} className="flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-emerald-500 transition-colors font-semibold">
             <ArrowLeft size={18} /> Back to Discovery
           </button>
-          <span className="text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-3 py-1 rounded-full font-bold">
-            AI Confidence: 92%
-          </span>
+          {selectedMeal.similarity && (
+            <span className="text-xs font-bold bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-3 py-1 rounded-full">
+              AI Confidence: {(selectedMeal.similarity * 100).toFixed(0)}%
+            </span>
+          )}
         </div>
       </header>
 
-      {/* HERO SPLIT */}
-      <section className="max-w-7xl mx-auto px-6 py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-stretch">
-          {/* LEFT IMAGE */}
-          <div className="relative rounded-3xl overflow-hidden shadow-lg border border-transparent dark:border-slate-800">
-            <img
-              src={selectedMeal.image}
-              alt={selectedMeal.name}
-              className="w-full h-full object-cover"
-            />
-          </div>
-
-          {/* RIGHT ACTION PANEL */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-gray-100 dark:border-slate-800 flex flex-col justify-between shadow-sm">
-            <div className="space-y-6">
-              <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100">{selectedMeal.name}</h1>
-
-              <div className="flex flex-wrap gap-3">
-                <Tag icon={Clock} text="30 mins" />
-                <Tag icon={ChefHat} text="Easy Prep" />
-                <Tag icon={Users} text="2 servings" />
-              </div>
-
-              {/* WHY ML */}
-              <div className="bg-emerald-50 dark:bg-emerald-950/20 p-5 rounded-2xl border border-emerald-100/50 dark:border-emerald-900/20">
-                <p className="text-xs font-bold uppercase text-emerald-600 dark:text-emerald-400 mb-3 tracking-widest">
-                  Recommended because
-                </p>
-                <ul className="text-sm space-y-2 text-slate-700 dark:text-slate-300 font-medium">
-                  <li className="flex items-center gap-2">✔ Matches {userProfile.dietPreference.join(", ")}</li>
-                  <li className="flex items-center gap-2">✔ Low sodium (BP friendly)</li>
-                  <li className="flex items-center gap-2">✔ High protein balance</li>
-                </ul>
-              </div>
-
-              {/* NUTRITION */}
-              <div className="grid grid-cols-2 gap-4">
-                <Nutrient icon={Zap} label="Calories" value={`${selectedMeal.calories} kcal`} />
-                <Nutrient icon={Beef} label="Protein" value={`${selectedMeal.protein} g`} />
-                <Nutrient icon={Wheat} label="Carbs" value={`${selectedMeal.carbs} g`} />
-                <Nutrient icon={Droplets} label="Fat" value={`${selectedMeal.fat} g`} />
-              </div>
-            </div>
-
-            {/* ACTIONS */}
-            <div className="mt-10 flex gap-4">
-              <button
-                onClick={() => setIsSaved(!isSaved)}
-                className={`p-4 rounded-2xl border transition-all duration-300 ${
-                  isSaved
-                    ? "bg-rose-50 dark:bg-rose-950/30 text-rose-500 border-rose-200 dark:border-rose-900/50"
-                    : "bg-gray-50 dark:bg-slate-800 text-gray-500 dark:text-slate-400 border-transparent"
-                }`}
-              >
-                <Heart fill={isSaved ? "currentColor" : "none"} className="w-6 h-6" />
-              </button>
-
-              <button
-                onClick={() => onNavigate("planner")}
-                className="flex-1 bg-emerald-600 hover:bg-emerald-500 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white rounded-2xl font-bold shadow-lg shadow-emerald-600/20 transition-all active:scale-95"
-              >
-                Plan this meal
-              </button>
-
-              <button
-                onClick={() => onNavigate("grocery")}
-                className="p-4 bg-gray-50 dark:bg-slate-800 rounded-2xl text-gray-600 dark:text-slate-300 border border-transparent dark:hover:border-slate-700 transition-all"
-              >
-                <ShoppingCart className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
+      <section className="max-w-7xl mx-auto px-6 py-10 grid lg:grid-cols-2 gap-12 items-start">
+        {/* IMAGE: Fixed aspect and size */}
+        <div className="w-full sticky top-24">
+          <img
+            src={selectedMeal.image}
+            className="rounded-[3rem] object-cover w-full aspect-square lg:aspect-[4/5] max-h-[500px] lg:max-h-[700px] shadow-2xl ring-1 ring-black/5 dark:ring-white/10"
+            alt={selectedMeal.name}
+          />
         </div>
-      </section>
 
-      {/* FEEDBACK */}
-      <section className="max-w-4xl mx-auto px-6 mt-10 text-center">
-        <p className="text-xs uppercase font-bold text-slate-400 dark:text-slate-500 mb-6 tracking-widest">
-          Improve Recommendations
-        </p>
-        <div className="flex justify-center gap-8">
-          <button className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 text-slate-400 dark:text-slate-500 hover:text-emerald-500 dark:hover:text-emerald-400 transition-all shadow-sm">
-            <ThumbsUp />
-          </button>
-          <button className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 text-slate-400 dark:text-slate-500 hover:text-rose-500 dark:hover:text-rose-400 transition-all shadow-sm">
-            <ThumbsDown />
-          </button>
+        {/* RIGHT PANEL */}
+        <div className="bg-white dark:bg-slate-900/50 backdrop-blur-xl rounded-[3rem] p-8 lg:p-12 border border-slate-200 dark:border-white/10 shadow-xl space-y-10">
+          <div className="space-y-6">
+            <h1 className="text-4xl lg:text-5xl font-black text-slate-900 dark:text-white leading-tight">
+              {selectedMeal.name}
+            </h1>
+
+            <div className="flex flex-wrap gap-3">
+              {selectedMeal.servingSize && <Tag icon={Users} text={`${selectedMeal.servingSize} Servings`} />}
+              <Tag icon={ChefHat} text={getDifficulty(selectedMeal)} />
+              {selectedMeal.tags?.includes("breakfast") && <Tag icon={Clock} text="Breakfast" />}
+            </div>
+
+            <WhyRecommended meal={selectedMeal} />
+
+            <div className="grid grid-cols-2 gap-4">
+              <Nutrient icon={Zap} label="Calories" value={`${selectedMeal.calories} kcal`} />
+              <Nutrient icon={Beef} label="Protein" value={`${selectedMeal.protein}g`} />
+              <Nutrient icon={Wheat} label="Carbs" value={`${selectedMeal.carbs}g`} />
+              <Nutrient icon={Droplets} label="Fat" value={`${selectedMeal.fat}g`} />
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <button
+              onClick={() => setIsSaved(!isSaved)}
+              className={`p-5 rounded-3xl transition-all ${
+                isSaved ? "bg-rose-100 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400" : "bg-slate-100 dark:bg-slate-800 text-slate-400"
+              }`}
+            >
+              <Heart fill={isSaved ? "currentColor" : "none"} size={24} />
+            </button>
+            <button onClick={() => onNavigate("planner")} className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-3xl font-bold text-lg shadow-lg shadow-emerald-600/20 transition-transform active:scale-95">
+              Plan this meal
+            </button>
+            <button onClick={() => onNavigate("grocery")} className="p-5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-3xl">
+              <ShoppingCart size={24} />
+            </button>
+          </div>
         </div>
       </section>
     </div>
   );
 }
 
-/* ========================= HELPERS ========================= */
+/* ========================= COMPONENT HELPERS ========================= */
 
 function Tag({ icon: Icon, text }: any) {
   return (
-    <span className="flex items-center gap-2 bg-gray-100 dark:bg-slate-800 px-4 py-2 rounded-full text-sm font-semibold text-slate-700 dark:text-slate-300">
+    <span className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-white/10 px-4 py-2 rounded-2xl text-sm font-bold text-slate-700 dark:text-slate-200">
       <Icon size={16} className="text-emerald-500" /> {text}
     </span>
   );
@@ -200,14 +261,45 @@ function Tag({ icon: Icon, text }: any) {
 
 function Nutrient({ icon: Icon, label, value }: any) {
   return (
-    <div className="flex items-center gap-3 bg-gray-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-transparent dark:border-slate-800/50 transition-colors">
-      <div className="p-2 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg">
-        <Icon size={18} className="text-emerald-500" />
+    <div className="flex items-center gap-4 bg-slate-50 dark:bg-slate-800/30 border border-slate-200 dark:border-white/10 p-4 rounded-3xl">
+      <div className="p-2.5 bg-white dark:bg-slate-800 rounded-2xl shadow-sm">
+        <Icon size={20} className="text-emerald-500" />
       </div>
       <div>
-        <p className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-tight">{label}</p>
-        <p className="font-bold text-slate-900 dark:text-slate-100 tracking-tight">{value}</p>
+        <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest">{label}</p>
+        <p className="font-bold text-slate-900 dark:text-white">{value}</p>
       </div>
     </div>
   );
 }
+
+function WhyRecommended({ meal }: any) {
+  const reasons: string[] = [];
+  if (meal.dietaryPreference) reasons.push(`Matches ${meal.dietaryPreference} diet`);
+  if (meal.protein >= 20) reasons.push("High protein density");
+  if (meal.whyRecommended) reasons.push(meal.whyRecommended);
+
+  return (
+    <div className="bg-emerald-50/50 dark:bg-emerald-500/5 p-6 rounded-[2rem] border border-emerald-100 dark:border-emerald-500/10">
+      <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-3">AI Insights</p>
+      <ul className="space-y-2">
+        {reasons.map((r, i) => (
+          <li key={i} className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+            <span className="text-emerald-500 text-lg">✦</span> {r}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+const getNutritionLabel = (meal: Meal) => {
+  if (meal.protein >= 20) return "High Protein";
+  if (meal.calories <= 400) return "Low Calorie";
+  return "Balanced";
+};
+
+const getDifficulty = (meal: Meal) => {
+  const steps = meal.instructions?.length || 0;
+  return steps <= 4 ? "Easy Prep" : steps <= 8 ? "Medium" : "Chef Level";
+};

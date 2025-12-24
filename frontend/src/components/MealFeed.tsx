@@ -65,7 +65,7 @@ export function MealDetailPage({
           </button>
 
           <div className="flex items-center gap-2 bg-emerald-50 px-3 py-1 rounded-full text-emerald-700 text-xs font-bold">
-            <CheckCircle size={14} /> AI Confidence: 92%
+            <CheckCircle size={14} /> AI Confidence: 91%
           </div>
         </div>
       </header>
