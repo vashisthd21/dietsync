@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+// import { useEffect } from 'react';
 // import { useNavigate } from 'react-router-dom';
 import {
   Leaf,
@@ -23,7 +23,7 @@ import { icons } from "lucide-react";
 const Github = icons.Github;
 const Linkedin = icons.Linkedin;
 const Instagram = icons.Instagram;
-const Youtube = icons.Youtube;
+// const Youtube = icons.Youtube;
 
 
 

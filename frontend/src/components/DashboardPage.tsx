@@ -1,6 +1,6 @@
 import { 
   Leaf, Calendar, ShoppingCart, User, Flame, 
-  CheckCircle, List, ArrowUpRight, Target, Activity 
+ List, ArrowUpRight, Target, Activity 
 } from "lucide-react";
 
 type DashboardPageProps = {

@@ -18,7 +18,7 @@ const budgetOptions = [
   { label: "Premium", value: "premium" },
 ];
 
-export function ProfileSettingsPage({ userProfile, onSave, onBack }: Props) {
+export function ProfileSettingsPage({ userProfile, onSave }: Props) {
   // 1. Added isEditing state (starts false)
   const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState<UserProfile>(userProfile);
@@ -101,10 +101,10 @@ const handleDeleteAccount = async () => {
         setError("Failed to delete account. Please try again.");
       }
     };
-  const handleBack = () => {
-    if (isDirty && !confirm("You have unsaved changes. Discard them?")) return;
-    onBack();
-  };
+  // const handleBack = () => {
+  //   if (isDirty && !confirm("You have unsaved changes. Discard them?")) return;
+  //   onBack();
+  // };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500 pb-32">

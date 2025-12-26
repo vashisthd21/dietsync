@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Leaf, Mail, Lock } from 'lucide-react';
+import {Mail, Lock } from 'lucide-react';
 import Logo from '../assets/logo1.svg?react';
 import api from "../api/axios";
 

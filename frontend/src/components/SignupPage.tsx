@@ -1,5 +1,5 @@
 import { useState } from "react";
-import {  User, Mail, Lock } from "lucide-react";
+import {  User, Lock } from "lucide-react";
 import Logo from '../assets/logo1.svg?react';
 import api from "../api/axios";
 import { useEffect } from "react";
@@ -130,7 +130,7 @@ const handleVerifyOtp = async () => {
     try {
       setVerifyingOtp(true); // 🔒 lock button
   
-      const res = await api.post("/auth/verify-otp", {
+      await api.post("/auth/verify-otp", {
         email: email.trim(),
         otp: otp.trim(),
       });

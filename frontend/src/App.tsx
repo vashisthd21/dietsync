@@ -24,7 +24,7 @@ export default function App() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [loadingProfile, setLoadingProfile] = useState(false);
-
+  console.log(loadingProfile);
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const toggleTheme = () => setTheme((prev) => (prev === "light" ? "dark" : "light"));
 

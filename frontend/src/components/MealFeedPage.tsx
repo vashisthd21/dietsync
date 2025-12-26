@@ -7,8 +7,6 @@ import {
   RefreshCw,
   ShoppingCart,
   Heart,
-  ThumbsUp,
-  ThumbsDown,
   Zap,
   Beef,
   Wheat,

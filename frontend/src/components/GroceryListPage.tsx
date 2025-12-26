@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import {
   Leaf,
-  ShoppingCart,
   Plus,
   Trash2,
   Check,

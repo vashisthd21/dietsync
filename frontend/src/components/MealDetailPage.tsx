@@ -23,7 +23,7 @@ export function MealDetailPage({
 }: MealDetailPageProps) {
   const [meal, setMeal] = useState<Meal | null>(null);
   const [loading, setLoading] = useState(true);
-  const [servings, setServings] = useState(2);
+  const [servings] = useState(2);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {

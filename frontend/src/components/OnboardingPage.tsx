@@ -47,6 +47,7 @@ export function OnboardingPage({ onComplete, onBack, isLoggedIn }: OnboardingPag
 
   // 🔥 FUNCTIONAL SKIP: Sends current form data to redirect to dashboard
   const handleSkipSetup = () => {
+    console.log(isLoggedIn);
     onComplete({
       name: formData.name || 'User',
       email: formData.email,
@@ -59,7 +60,7 @@ export function OnboardingPage({ onComplete, onBack, isLoggedIn }: OnboardingPag
       onboardingCompleted: false, // Mark onboarding as incomplete
     });
   };
-
+  
   const handleNext = () => {
     if (step < totalSteps) {
       setStep(step + 1);
