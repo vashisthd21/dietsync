@@ -115,11 +115,11 @@ export default function App() {
             )}
 
             {currentPage === "login" && (
-              <LoginPage onGoogleLogin={() => (window.location.href = "http://localhost:5050/auth/google")} onLoginSuccess={fetchUserProfile} onGoToSignup={() => goTo("signup")} onBackToHome={() => goTo("landing")} />
+              <LoginPage onGoogleLogin={() => (window.location.href = "https://dietsync.onrender.com/auth/google")} onLoginSuccess={fetchUserProfile} onGoToSignup={() => goTo("signup")} onBackToHome={() => goTo("landing")} />
             )}
 
             {currentPage === "signup" && (
-              <SignupPage onGoogleSignup={() => (window.location.href = "http://localhost:5050/auth/google")} onSignupSuccess={() => setPageStack(["onboarding"])} onGoToLogin={() => goTo("login")} onBackToHome={() => goTo("landing")} />
+              <SignupPage onGoogleSignup={() => (window.location.href = "https://dietsync.onrender.com/auth/google")} onSignupSuccess={() => setPageStack(["onboarding"])} onGoToLogin={() => goTo("login")} onBackToHome={() => goTo("landing")} />
             )}
 
             {currentPage === "onboarding" && (

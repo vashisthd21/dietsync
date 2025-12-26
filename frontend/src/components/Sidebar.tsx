@@ -53,7 +53,7 @@ export function Sidebar({
   const resolveAvatarUrl = (avatar?: string) => {
     if (!avatar) return null;
     if (avatar.startsWith("http")) return avatar;
-    return `http://localhost:5050${avatar}`;
+    return `https://dietsync.onrender.com${avatar}`;
   };
   console.log("User : ",user)
   const avatarUrl = resolveAvatarUrl(user.avatar);

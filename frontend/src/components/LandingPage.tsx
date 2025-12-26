@@ -54,7 +54,7 @@ export function LandingPage({
   // }, [navigate]);
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:5050/auth/google";
+    window.location.href = "https://dietsync.onrender.com/auth/google";
   };
   
 

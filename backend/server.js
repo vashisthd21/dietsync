@@ -24,12 +24,31 @@ const PORT = process.env.PORT || 5050;
 
 connectDB();
 
+const allowedOrigins = [
+  "http://localhost:5173",          // local dev
+  "https://dietsync.vercel.app",    // 🔴 CHANGE to your actual frontend URL
+];
+
+app.set("trust proxy", 1); 
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: function (origin, callback) {
+ 
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("CORS not allowed"));
+      }
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
 
 app.use(express.json());
 app.use(passport.initialize());
