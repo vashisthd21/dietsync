@@ -1,258 +1,190 @@
-import { useState } from 'react';
-import { ArrowLeft, Clock, Users, ChefHat, RefreshCw, Plus, Calendar, ShoppingCart } from 'lucide-react';
-import type { Meal } from '../types/meal';
-
+import { useState, useEffect } from "react";
+import {
+  ArrowLeft, Clock, ChefHat, Calendar, ShoppingCart,
+  Zap, Beef, Droplets, Wheat, Info, Heart,
+  RefreshCw, CheckCircle
+} from "lucide-react";
+import type { Meal } from "../types/meal";
+import api from "../api/axios";
+import type { UserProfile } from "../types/user";
 
 type MealDetailPageProps = {
-  meal: Meal;
+  mealId: string;
+  userProfile: UserProfile;
   onBack: () => void;
-  onNavigate: (page: 'dashboard' | 'planner' | 'grocery') => void;
+  onNavigate: (page: "planner" | "grocery") => void;
 };
 
-const alternativeIngredients: { [key: string]: string[] } = {
-  'eggs': ['silken tofu', 'flax eggs', 'chia eggs'],
-  'spinach': ['kale', 'arugula', 'swiss chard'],
-  'mushroom': ['zucchini', 'eggplant', 'bell peppers'],
-  'bell pepper': ['cherry tomatoes', 'zucchini', 'carrots'],
-  'salmon': ['cod', 'halibut', 'tilapia'],
-  'chicken': ['turkey', 'tofu', 'tempeh'],
-  'quinoa': ['brown rice', 'farro', 'bulgur'],
-  'broccoli': ['green beans', 'asparagus', 'brussels sprouts'],
-};
-
-export function MealDetailPage({ meal, onBack, onNavigate }: MealDetailPageProps) {
-  const [selectedIngredient, setSelectedIngredient] = useState<string | null>(null);
+export function MealDetailPage({
+  mealId,
+  userProfile,
+  onBack,
+  onNavigate,
+}: MealDetailPageProps) {
+  const [meal, setMeal] = useState<Meal | null>(null);
+  const [loading, setLoading] = useState(true);
   const [servings, setServings] = useState(2);
+  const [saved, setSaved] = useState(false);
 
-  const getIngredientKey = (ingredient: string) => {
-    const lowerIngredient = ingredient.toLowerCase();
-    for (const key in alternativeIngredients) {
-      if (lowerIngredient.includes(key)) {
-        return key;
-      }
-    }
-    return null;
-  };
+  useEffect(() => {
+    api.get(`/api/meals/${mealId}`)
+      .then(res => setMeal(res.data))
+      .catch(err => console.error("Fetch error:", err))
+      .finally(() => setLoading(false));
+  }, [mealId]);
 
-  const handleIngredientClick = (ingredient: string) => {
-    const key = getIngredientKey(ingredient);
-    if (key && alternativeIngredients[key]) {
-      setSelectedIngredient(ingredient);
-    }
-  };
+  if (loading || !meal) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950">
+        <RefreshCw className="animate-spin w-8 h-8 text-emerald-500" />
+      </div>
+    );
+  }
 
-  const getAlternatives = (ingredient: string) => {
-    const key = getIngredientKey(ingredient);
-    return key ? alternativeIngredients[key] : [];
-  };
-
-  const scaledValue = (value: number) => Math.round(value * (servings / 2));
+  const scaled = (val: number) => Math.round(val * (servings / 2));
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={onBack}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
-            </button>
-            <h2 className="text-xl">Back to Feed</h2>
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 font-sans antialiased transition-colors duration-500">
+      
+      {/* ================= HEADER ================= */}
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800">
+        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+          <button
+            onClick={onBack}
+            className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-emerald-600 transition"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="text-sm font-semibold">Back to discovery</span>
+          </button>
+
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800">
+            <CheckCircle className="w-4 h-4 text-emerald-600" />
+            <span className="text-[11px] font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
+              Match Score: 92%
+            </span>
           </div>
         </div>
       </header>
 
-      <div className="max-w-5xl mx-auto px-6 py-8">
-        {/* Hero Image */}
-        <div className="relative h-96 rounded-3xl overflow-hidden mb-8 shadow-xl">
-          <img
-            src={meal.image}
-            alt={meal.name}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
-            <h1 className="text-5xl mb-4">{meal.name}</h1>
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5" />
-                <span>30 mins</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Users className="w-5 h-5" />
-                <span>{servings} servings</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <ChefHat className="w-5 h-5" />
-                <span>Easy</span>
-              </div>
+      {/* ================= CONTENT ================= */}
+      <div className="max-w-5xl mx-auto px-6 py-10 space-y-10 pb-40">
+        {/* Hero */}
+        <section className="relative h-[32rem] rounded-[3rem] overflow-hidden shadow-2xl">
+          <img src={meal.image} alt={meal.name} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
+          <div className="absolute bottom-0 p-12">
+            <h1 className="text-5xl font-semibold text-white mb-6">
+              {meal.name}
+            </h1>
+            <div className="flex gap-4">
+              <Badge icon={Clock} text="25 mins" />
+              <Badge icon={ChefHat} text="Easy Prep" />
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Why Recommended */}
-            {meal.whyRecommended && (
-              <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-2xl p-6 border border-orange-200">
-                <h3 className="text-xl mb-2 text-orange-900">Why Recommended</h3>
-                <p className="text-orange-800">{meal.whyRecommended}</p>
-              </div>
-            )}
-
-            {/* Ingredients */}
-            <div className="bg-white rounded-2xl p-8 shadow-sm">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl">Ingredients</h3>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setServings(Math.max(1, servings - 1))}
-                    className="w-8 h-8 rounded-full border border-gray-300 hover:border-green-500 flex items-center justify-center"
-                  >
-                    -
-                  </button>
-                  <span className="w-12 text-center">{servings}</span>
-                  <button
-                    onClick={() => setServings(servings + 1)}
-                    className="w-8 h-8 rounded-full border border-gray-300 hover:border-green-500 flex items-center justify-center"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-              
-              <ul className="space-y-3">
-                {meal.ingredients.map((ingredient, i) => {
-                  const hasAlternatives = getAlternatives(ingredient).length > 0;
-                  const isSelected = selectedIngredient === ingredient;
-                  
-                  return (
-                    <li key={i}>
-                      <div
-                        onClick={() => hasAlternatives && handleIngredientClick(ingredient)}
-                        className={`flex items-center justify-between p-3 rounded-lg transition-all ${
-                          hasAlternatives
-                            ? 'cursor-pointer hover:bg-green-50 border border-transparent hover:border-green-300'
-                            : ''
-                        } ${isSelected ? 'bg-green-50 border-green-300' : ''}`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-2 h-2 bg-green-600 rounded-full" />
-                          <span className="text-gray-900">{ingredient}</span>
-                        </div>
-                        {hasAlternatives && (
-                          <RefreshCw className="w-4 h-4 text-green-600" />
-                        )}
-                      </div>
-                      
-                      {isSelected && (
-                        <div className="ml-8 mt-2 p-3 bg-white border border-green-200 rounded-lg">
-                          <p className="text-sm text-gray-600 mb-2">Alternatives:</p>
-                          <div className="flex flex-wrap gap-2">
-                            {getAlternatives(ingredient).map((alt, j) => (
-                              <button
-                                key={j}
-                                className="px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm hover:bg-green-100 transition-colors"
-                              >
-                                {alt}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </li>
-                  );
-                })}
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          <div className="lg:col-span-2 space-y-10">
+            {/* ML Reason */}
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
+                <Info className="w-4 h-4 text-emerald-500" />
+                Why we recommend this
+              </h3>
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <RecommendationItem text={`Fits ${userProfile.dietPreference?.[0]}`} />
+                <RecommendationItem text={`Optimized for ${userProfile.medicalConditions?.[0]}`} />
+                <RecommendationItem text="High protein & balanced macros" />
+                <RecommendationItem text="Within your calorie budget" />
               </ul>
-
-              <p className="text-sm text-gray-500 mt-4 flex items-center gap-2">
-                <RefreshCw className="w-4 h-4" />
-                Click on ingredients to see alternatives
-              </p>
-            </div>
-
-            {/* Instructions */}
-            <div className="bg-white rounded-2xl p-8 shadow-sm">
-              <h3 className="text-2xl mb-6">Instructions</h3>
-              <ol className="space-y-4">
-                {meal.instructions.map((instruction, i) => (
-                  <li key={i} className="flex gap-4">
-                    <div className="flex-shrink-0 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center">
-                      {i + 1}
-                    </div>
-                    <p className="text-gray-700 pt-1">{instruction}</p>
-                  </li>
-                ))}
-              </ol>
             </div>
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Nutrition Facts */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm sticky top-24">
-              <h3 className="text-xl mb-4">Nutrition Facts</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between pb-3 border-b">
-                  <span className="text-gray-600">Calories</span>
-                  <span className="text-2xl">{scaledValue(meal.calories)}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Protein</span>
-                  <span className="text-lg">{scaledValue(meal.protein)}g</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Carbs</span>
-                  <span className="text-lg">{scaledValue(meal.carbs)}g</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Fat</span>
-                  <span className="text-lg">{scaledValue(meal.fat)}g</span>
-                </div>
-                {meal.sodium && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Sodium</span>
-                    <span className="text-lg">{scaledValue(meal.sodium)}mg</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-6 pt-6 border-t space-y-3">
-                <button
-                  onClick={() => onNavigate('planner')}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                >
-                  <Calendar className="w-5 h-5" />
-                  Add to Planner
-                </button>
-                <button
-                  onClick={() => onNavigate('grocery')}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors"
-                >
-                  <ShoppingCart className="w-5 h-5" />
-                  Add to Grocery List
-                </button>
+          {/* Nutrition */}
+          <aside className="space-y-6">
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-6">
+                Nutrition Snapshot
+              </h3>
+              <div className="space-y-4">
+                <NutrientRow icon={Zap} label="Calories" value={scaled(meal.calories)} unit="kcal" />
+                <NutrientRow icon={Beef} label="Protein" value={scaled(meal.protein)} unit="g" />
+                <NutrientRow icon={Wheat} label="Carbs" value={scaled(meal.carbs)} unit="g" />
+                <NutrientRow icon={Droplets} label="Fat" value={scaled(meal.fat)} unit="g" />
               </div>
             </div>
-
-            {/* Tags */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
-              <h3 className="text-xl mb-4">Tags</h3>
-              <div className="flex flex-wrap gap-2">
-                {meal.tags.map((tag, i) => (
-                  <span key={i} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
+          </aside>
         </div>
       </div>
+
+      {/* ================= FIXED ACTION BAR ================= */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
+          
+          <button
+            onClick={() => setSaved(!saved)}
+            className={`p-4 rounded-2xl border transition ${
+              saved
+                ? "text-rose-500 bg-rose-50 border-rose-200"
+                : "text-slate-400 bg-slate-50 border-slate-200"
+            }`}
+          >
+            <Heart size={24} fill={saved ? "currentColor" : "none"} />
+          </button>
+
+          <button
+            onClick={() => onNavigate("planner")}
+            className="flex-1 flex items-center justify-center gap-3 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-bold shadow-lg transition active:scale-95"
+          >
+            <Calendar size={20} />
+            Plan this meal
+          </button>
+
+          <button
+            onClick={() => onNavigate("grocery")}
+            className="p-4 rounded-2xl border bg-slate-50 text-slate-500 hover:text-emerald-600 transition"
+          >
+            <ShoppingCart size={24} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ================= HELPER COMPONENTS ================= */
+
+function NutrientRow({ icon: Icon, label, value, unit }: any) {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <Icon className="w-5 h-5 text-emerald-500" />
+        <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+          {label}
+        </span>
+      </div>
+      <span className="font-bold text-slate-900 dark:text-white">
+        {value} <span className="text-xs text-slate-400">{unit}</span>
+      </span>
+    </div>
+  );
+}
+
+function RecommendationItem({ text }: { text: string }) {
+  return (
+    <li className="flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-400">
+      <span className="w-2 h-2 bg-emerald-500 rounded-full" />
+      {text}
+    </li>
+  );
+}
+
+function Badge({ icon: Icon, text }: any) {
+  return (
+    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white text-sm">
+      <Icon className="w-4 h-4 text-emerald-400" />
+      {text}
     </div>
   );
 }

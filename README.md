@@ -7,7 +7,7 @@ It focuses on clean UI, smooth UX, and real-world usability to make diet plannin
 
 ## 🚀 Features
 
-### 🏠 Home Dashboard
+### 🏠 Home
 - Personalized greeting and daily overview
 - Diet preference, medical conditions, and budget snapshot
 - Today’s calorie progress and planned meals
@@ -98,7 +98,7 @@ DietSync is built with a **real-world problem-solving approach**:
 src/
 ├── components/
 │ ├── HomePage.tsx
-│ ├── DashboardPage.tsx
+│ ├── MealFeedPage.tsx
 │ ├── WeeklyPlannerPage.tsx
 │ ├── GroceryListPage.tsx
 │ ├── Sidebar.tsx
