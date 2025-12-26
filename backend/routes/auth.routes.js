@@ -26,11 +26,11 @@ router.get(
   "/google/callback",
   passport.authenticate("google", {
     session: false,
-    failureRedirect: "http://localhost:5173/login",
+    failureRedirect: "https://dietsync.vercel.app//login",
   }),
   (req, res) => {
     const token = generateToken(req.user);
-    res.redirect(`http://localhost:5173/mealfeed?token=${token}`);
+    res.redirect(`https://dietsync.vercel.app/mealfeed?token=${token}`);
   }
 );
 
